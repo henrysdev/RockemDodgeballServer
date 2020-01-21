@@ -16,7 +16,7 @@ defmodule RockemDodgeball.GameServer do
 
   def init({port, state}) do
     {:ok, socket} = :gen_udp.open(port, [:binary, active: true])
-    {:ok, {socket, state}}
+    {:ok, state}
   end
 
   def handle_info({:udp, socket, ip, port, data}, state) do
