@@ -1,3 +1,4 @@
 %{
+  "exdr": {:hex, :exdr, "0.1.1", "fe6a1b4adca1118518a096018555fba9c09d8311e70b9b1071eef0888850fb43", [:mix], [], "hexpm"},
   "socket": {:hex, :socket, "0.3.13", "98a2ab20ce17f95fb512c5cadddba32b57273e0d2dba2d2e5f976c5969d0c632", [:mix], [], "hexpm"},
 }

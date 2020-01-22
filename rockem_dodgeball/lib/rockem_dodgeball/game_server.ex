@@ -20,7 +20,7 @@ defmodule RockemDodgeball.GameServer do
   end
 
   def handle_info({:udp, socket, ip, port, data}, state) do
-    IO.puts(data)
+    IO.inspect(data |> Transport.read_vector3())
 
     case data do
       "BROADCAST" -> broadcast_to_clients(socket, Map.get(state, "players"), "psa!")
