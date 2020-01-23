@@ -11,27 +11,34 @@ defmodule RockemDodgeball.GameServer do
   """
 
   def start_link(port) do
-    GenServer.start_link(__MODULE__, {port, %{"players" => []}})
+    GenServer.start_link(__MODULE__, port)
   end
 
-  def init({port, state}) do
+  def init(port) do
     {:ok, socket} = :gen_udp.open(port, [:binary, active: true])
+
+    state = %{
+      players: [],
+      socket: socket
+    }
+
     {:ok, state}
   end
 
-  def handle_info({:udp, socket, ip, port, data}, state) do
-    IO.inspect(data |> Transport.read_vector3())
-
-    case data do
-      "BROADCAST" -> broadcast_to_clients(socket, Map.get(state, "players"), "psa!")
-      _ -> Transport.send_data(socket, data, {ip, port})
-    end
+  def handle_info({:udp, socket, ip, port, data} = info, state) do
+    # TODO
+    # 1. Decode message
+    # 2. Update current gamestate
 
     :gen_udp.send(socket, data)
     {:noreply, state}
   end
 
-  defp broadcast_to_clients(server, clients, data) do
+  defp broadcast_gamestate(server, clients, data) do
+    # TODO
+    # 1. Pull gamestate
+    # 2. Broadcast gamestate to all clients
+
     clients |> Enum.each(&Transport.send_data(server, data, &1))
   end
 end
