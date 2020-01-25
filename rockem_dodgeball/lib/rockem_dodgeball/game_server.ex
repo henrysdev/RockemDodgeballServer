@@ -7,7 +7,8 @@ defmodule RockemDodgeball.GameServer do
 
   alias RockemDodgeball.GameServer.{
     Ticker,
-    Gamestate
+    Gamestate,
+    Helpers
   }
 
   @moduledoc """
@@ -47,35 +48,18 @@ defmodule RockemDodgeball.GameServer do
     # 3. Route to correct place
     # 4. Update gamestate
   """
-  # TODO route behavior based on data traits
-  def handle_info({:udp, socket, ip, port, data} = info, state) do
-    IO.inspect(data |> Poison.decode!())
-    message = Poison.decode!(data)
-
+  def handle_info({:udp, _socket, ip, port, data}, state) do
     %{
-      "player" => %{
-        "playerId" => player_id
-      }
-    } = message
-
-    %{
-      players: players,
-      socket: new_socket,
       gamestate_pid: gamestate_pid
     } = state
 
-    players =
-      case Map.has_key?(players, player_id) do
-        false -> Map.put(players, player_id, {ip, port})
-        _true -> players
-      end
+    payload = Poison.decode!(data)
 
-    state = Map.put(state, :players, players)
+    state =
+      state
+      |> Helpers.add_if_new_player(payload, {ip, port})
 
-    Gamestate.update_gamestate(gamestate_pid, message)
-
-    IO.inspect(state)
-
+    Gamestate.update_gamestate(gamestate_pid, payload)
     {:noreply, state}
   end
 
@@ -89,7 +73,6 @@ defmodule RockemDodgeball.GameServer do
     } = state
 
     clients = players |> Map.values()
-    IO.inspect({:CLIENT, clients})
 
     gamestate_data = Gamestate.fetch_gamestate(gamestate_pid)
 
