@@ -1,4 +1,4 @@
-defmodule RockemDodgeball.GameServer.GameServerDynamicSupervisor do
+defmodule RockemDodgeball.GameServerDynamicSupervisor do
   use DynamicSupervisor
 
   alias RockemDodgeball.{
@@ -6,6 +6,7 @@ defmodule RockemDodgeball.GameServer.GameServerDynamicSupervisor do
   }
 
   @port 27189
+  @tickrate 10
 
   def start_link(init_arg) do
     DynamicSupervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
@@ -15,8 +16,12 @@ defmodule RockemDodgeball.GameServer.GameServerDynamicSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def add_game_server() do
-    DynamicSupervisor.start_child(__MODULE__, {GameServer, @port})
+  @doc """
+  add_game_server creates a new game server process
+  with the given gs_id (game server id)
+  """
+  def add_game_server(gs_id) do
+    DynamicSupervisor.start_child(__MODULE__, {GameServer, [@port, @tickrate, gs_id]})
   end
 
   def active_game_servers() do

@@ -5,10 +5,30 @@ defmodule RockemDodgeball.GameServerTest do
   @server_port 27189
   @client_port 12345
 
+  @tickrate 60
+  @gs_id "asdf"
+
   test "starts GameServer with listening udp port" do
-    {:ok, super_pid} = RockemDodgeball.GameServer.start_link(@server_port)
+    {:ok, super_pid} = RockemDodgeball.GameServer.start_link([@server_port, @tickrate, @gs_id])
     assert :ok == GenServer.cast(super_pid, {:udp, {}, {{127, 0, 0, 1}, @client_port}, "abc123"})
   end
+
+  # test "broadcasts gamestate" do
+  #   AppSupervisor.start_link()
+  #   {:ok, game_server} = RockemDodgeball.GameServerDynamicSupervisor.add_game_server("my_server")
+
+  #   my_client = Socket.UDP.open!(@client_port)
+
+  #   message =
+  #     %{
+  #       "userId" => System.system_time(:millisecond)
+  #     }
+  #     |> Poison.encode!()
+
+  #   Utils.Transport.send_data(my_client, message, {{127, 0, 0, 1}, @server_port})
+
+  #   RockemDodgeball.GameServer.broadcast_gamestate(game_server, System.system_time(:millisecond))
+  # end
 
   # TODO make readme w/ http://asciiflow.com/
   # test "broadcast message to clients" do

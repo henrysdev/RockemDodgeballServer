@@ -1,36 +1,69 @@
 defmodule RockemDodgeball.GameServer.Ticker do
   use GenServer
 
-  @tickrate 1000
+  alias RockemDodgeball.{
+    GameServer
+  }
 
-  def start_link() do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+  def start_link([tickrate, game_server]) do
+    GenServer.start_link(__MODULE__, [tickrate, game_server], name: __MODULE__)
+  end
+
+  def init([tickrate, game_server]) do
+    timer = Process.send_after(self(), :tick, tickrate)
+
+    state = %{
+      timer: timer,
+      tickrate: tickrate,
+      game_server: game_server
+    }
+
+    {:ok, state}
   end
 
   def reset_timer() do
     GenServer.call(__MODULE__, :reset_timer)
   end
 
-  def init(state) do
-    timer = Process.send_after(self(), :tick, @tickrate)
-    {:ok, %{timer: timer}}
-  end
+  def handle_call(:reset_timer, _from, state) do
+    %{
+      timer: timer,
+      tickrate: tickrate,
+      game_server: game_server
+    } = state
 
-  def handle_call(:reset_timer, _from, %{timer: timer}) do
     :timer.cancel(timer)
-    timer = Process.send_after(self(), :tick, @tickrate)
-    {:reply, :ok, %{timer: timer}}
+    timer = Process.send_after(self(), :tick, tickrate)
+
+    state = %{
+      timer: timer,
+      tickrate: tickrate,
+      game_server: game_server
+    }
+
+    {:reply, :ok, state}
   end
 
   def handle_info(:tick, state) do
-    # Do the tick you desire here
-    IO.puts("broadcasting message for tick - #{DateTime.utc_now()}")
-    # TODO send broadcast message from gameserver
+    %{
+      timer: timer,
+      tickrate: tickrate,
+      game_server: game_server
+    } = state
+
+    timestamp = System.system_time(:millisecond)
+    GameServer.broadcast_gamestate(game_server, timestamp)
 
     # Start the timer again
-    timer = Process.send_after(self(), :tick, @tickrate)
+    timer = Process.send_after(self(), :tick, tickrate)
 
-    {:noreply, %{timer: timer}}
+    state = %{
+      timer: timer,
+      tickrate: tickrate,
+      game_server: game_server
+    }
+
+    {:noreply, state}
   end
 
   # So that unhanded messages don't error

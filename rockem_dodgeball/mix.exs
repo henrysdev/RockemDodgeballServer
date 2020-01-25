@@ -22,7 +22,8 @@ defmodule RockemDodgeball.MixProject do
   defp deps do
     [
       {:socket, "~> 0.3"},
-      {:exdr, "~> 0.1.1"}
+      {:exdr, "~> 0.1.1"},
+      {:poison, "~> 3.1"}
     ]
   end
 end

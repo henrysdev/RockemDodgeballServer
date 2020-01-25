@@ -2,7 +2,7 @@ defmodule AppSupervisor do
   use Supervisor
 
   alias RockemDodgeball.{
-    GameServer.GameServerDynamicSupervisor
+    GameServerDynamicSupervisor
   }
 
   def start_link do
