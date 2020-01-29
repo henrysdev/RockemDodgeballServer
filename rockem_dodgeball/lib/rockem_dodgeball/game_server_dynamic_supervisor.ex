@@ -6,7 +6,7 @@ defmodule RockemDodgeball.GameServerDynamicSupervisor do
   }
 
   @port 27189
-  @tickrate 10
+  @tickrate 15
 
   def start_link(init_arg) do
     DynamicSupervisor.start_link(__MODULE__, init_arg, name: __MODULE__)
