@@ -23,7 +23,7 @@ defmodule RockemDodgeball.GameServer.Gamestate do
 
     state = %{
       "enemy" => new_state["player"],
-      "ballData" => new_state["ballData"]
+      "balls" => new_state["balls"]
     }
 
     {:noreply, state}
