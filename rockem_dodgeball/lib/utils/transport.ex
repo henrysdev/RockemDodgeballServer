@@ -48,7 +48,6 @@ defmodule Utils.Transport do
     {raw_vector3, raw_quaternion} = split_binary_at_index(binary, 12)
     vector3 = read_vector3(raw_vector3)
     quaternion = read_quaternion(raw_quaternion)
-    {vector3, quaternion} |> inspect |> IO.puts()
     {vector3, quaternion}
   end
 end
