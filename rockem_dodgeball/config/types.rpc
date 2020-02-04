@@ -1,0 +1,85 @@
+struct BallData {
+    short ballId;
+    Vector3Data position;
+    QuaternionData rotation;
+    Vector3Data velocity;
+    short ricochetCount;
+    long lastThrownBy;
+    bool isLive;
+    short damagePoints;
+}
+
+struct GameData {
+    Team team1;
+    Team team2;
+    long timeLeft;
+    bool gameOver;
+}
+
+struct Team {
+    short teamId;
+    short score;
+}
+
+struct ClientMetadata {
+    long clientId;
+    short version;
+    long gameServerId;
+    long matchId;
+    long timestamp;
+}
+
+struct Vector3Data {
+    float x;
+    float y;
+    float z;
+}
+
+struct QuaternionData {
+    float x;
+    float y;
+    float z;
+    float w;
+}
+
+struct PlayerData {
+    long playerId;
+    short teamId;
+    string name;
+    Vector3Data position;
+    QuaternionData rotation;
+    Vector3Data velocity;
+    PlayerActionState actionState;
+    short ballCount;
+    PlayerHealthState healthState;
+}
+
+struct PlayerActionState {
+    bool isMoving;
+    bool isGrounded;
+    bool isWindingUp;
+    bool isHit;
+}
+
+struct PlayerHealthState {
+    short headHealth;
+    short leftArmHealth;
+    short rightArmHealth;
+    short chestHealth;
+    short abdomenHealth;
+    short leftLegHealth;
+    short rightLegHealth;
+}
+
+struct ClientGamestateUpdate {
+    ClientMetadata metadata;
+    PlayerData player;
+    BallData[] balls;
+}
+
+struct ServerGamestateUpdate {
+    long tickTimestamp;
+    GameData gameInfo;
+    PlayerData enemy;
+    BallData[] balls;
+}
