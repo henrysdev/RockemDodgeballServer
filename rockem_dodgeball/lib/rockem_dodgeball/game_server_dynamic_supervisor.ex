@@ -20,8 +20,8 @@ defmodule RockemDodgeball.GameServerDynamicSupervisor do
   add_game_server creates a new game server process
   with the given gs_id (game server id)
   """
-  def add_game_server(gs_id) do
-    DynamicSupervisor.start_child(__MODULE__, {GameServer, [@port, @tickrate, gs_id]})
+  def add_game_server(gs_id, port \\ @port, tickrate \\ @tickrate, opts \\ []) do
+    DynamicSupervisor.start_child(__MODULE__, {GameServer, [gs_id, port, tickrate, opts]})
   end
 
   def active_game_servers() do

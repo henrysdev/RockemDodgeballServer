@@ -100,7 +100,7 @@ defmodule TypeGenerator.Generators do
   end
 
   def generate_type_files(custom_types, csharp_outdir, elixir_outdir) do
-    Generators.CSharp.gen_csharp_types(custom_types, csharp_outdir)
+    Generators.CSharp.gen_csharp_types(@primitive_types, custom_types, csharp_outdir)
     Generators.Elixir.gen_elixir_types(custom_types, elixir_outdir)
   end
 end

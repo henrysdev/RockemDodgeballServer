@@ -16,17 +16,17 @@ defmodule RockemDodgeball.GameServer do
   with the UDP network layer of the virtual game server process
   """
 
-  def start_link([port, tickrate, gs_id]) do
-    GenServer.start_link(__MODULE__, [port, tickrate, gs_id])
+  def start_link([gs_id, port, tickrate, opts]) do
+    GenServer.start_link(__MODULE__, [gs_id, port, tickrate, opts])
   end
 
-  def init([port, tickrate, gs_id]) do
+  def init([gs_id, port, tickrate, opts]) do
     {:ok, socket} = :gen_udp.open(port, [:binary, active: true])
     {:ok, ticker_pid} = Ticker.start_link([tickrate, self()])
     {:ok, gamestate_pid} = Gamestate.start_link(gs_id)
 
     state = %{
-      players: %{},
+      clients: %{},
       socket: socket,
       ticker_pid: ticker_pid,
       gamestate_pid: gamestate_pid,
@@ -53,13 +53,13 @@ defmodule RockemDodgeball.GameServer do
       gamestate_pid: gamestate_pid
     } = state
 
-    payload = Poison.decode!(data)
+    client_update = Poison.decode!(data, as: %ClientGamestateUpdate{})
 
     state =
       state
-      |> Helpers.add_if_new_player(payload, {ip, port})
+      |> Helpers.add_if_new_client(client_update.player, {ip, port})
 
-    Gamestate.update_gamestate(gamestate_pid, payload)
+    Gamestate.update_gamestate(gamestate_pid, client_update)
     {:noreply, state}
   end
 
@@ -67,21 +67,27 @@ defmodule RockemDodgeball.GameServer do
     IO.puts("broadcasting message for tick - #{DateTime.utc_now()}")
 
     %{
-      players: players,
+      clients: clients,
       socket: socket,
       gamestate_pid: gamestate_pid
     } = state
 
-    clients = players |> Map.values()
+    gamestate = Gamestate.fetch_gamestate(gamestate_pid)
 
-    gamestate_data = Gamestate.fetch_gamestate(gamestate_pid)
-
-    gamestate_data =
-      gamestate_data
-      |> Map.put("tickTimestamp", tick)
+    server_update =
+      %ServerGamestateUpdate{
+        players:
+          gamestate
+          |> Map.get("players", %{})
+          |> Map.values(),
+        tickTimestamp: tick
+      }
       |> Poison.encode!()
 
-    clients |> Enum.each(&Transport.send_data(socket, gamestate_data, &1))
+    clients
+    |> Map.values()
+    |> Enum.each(&Transport.send_data(socket, server_update, &1))
+
     {:noreply, state}
   end
 end

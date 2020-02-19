@@ -3,22 +3,20 @@ struct BallData {
     Vector3Data position;
     QuaternionData rotation;
     Vector3Data velocity;
-    short ricochetCount;
-    long lastThrownBy;
+    int damage;
     bool isLive;
-    short damagePoints;
+    long throwerPlayerId;
 }
 
-struct GameData {
-    Team team1;
-    Team team2;
+struct GameInfo {
+    Team[] teams;
     long timeLeft;
-    bool gameOver;
 }
 
 struct Team {
-    short teamId;
-    short score;
+    string name;
+    int score;
+    long[] playerIds;
 }
 
 struct ClientMetadata {
@@ -44,13 +42,13 @@ struct QuaternionData {
 
 struct PlayerData {
     long playerId;
-    short teamId;
     string name;
+    int score
+    string teamName;
     Vector3Data position;
     QuaternionData rotation;
     Vector3Data velocity;
     PlayerActionState actionState;
-    short ballCount;
     PlayerHealthState healthState;
 }
 
@@ -79,7 +77,7 @@ struct ClientGamestateUpdate {
 
 struct ServerGamestateUpdate {
     long tickTimestamp;
-    GameData gameInfo;
-    PlayerData enemy;
+    GameInfo gameInfo;
+    PlayerData[] players;
     BallData[] balls;
 }

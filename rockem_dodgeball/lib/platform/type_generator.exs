@@ -6,6 +6,6 @@ end
 
 TypeGenerator.read_in_types_file(
   "config/types.rpc",
-  "generated/types/csharp",
-  "generated/types/elixir"
+  "~/RockemDodgeball/RockemDodgeball/Assets/Scripts/Networking/Transport/Types/Generated",
+  "lib/platform/types"
 )

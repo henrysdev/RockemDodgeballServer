@@ -9,42 +9,52 @@ defmodule RockemDodgeball.GameServerTest do
   @gs_id "asdf"
 
   test "starts GameServer with listening udp port" do
-    {:ok, super_pid} = RockemDodgeball.GameServer.start_link([@server_port, @tickrate, @gs_id])
+    {:ok, super_pid} =
+      RockemDodgeball.GameServer.start_link([@gs_id, @server_port, @tickrate, []])
+
     assert :ok == GenServer.cast(super_pid, {:udp, {}, {{127, 0, 0, 1}, @client_port}, "abc123"})
   end
 
-  # test "broadcasts gamestate" do
-  #   AppSupervisor.start_link()
-  #   {:ok, game_server} = RockemDodgeball.GameServerDynamicSupervisor.add_game_server("my_server")
+  test "broadcast message to clients" do
+    fake_client_update =
+      %ClientGamestateUpdate{
+        player: %PlayerData{
+          playerId: "okok"
+        }
+      }
+      |> Poison.encode!()
 
-  #   my_client = Socket.UDP.open!(@client_port)
+    {:ok, server_pid} =
+      RockemDodgeball.GameServer.start_link([@gs_id, @server_port, @tickrate, []])
 
-  #   message =
-  #     %{
-  #       "userId" => System.system_time(:millisecond)
-  #     }
-  #     |> Poison.encode!()
+    Process.sleep(200)
 
-  #   Utils.Transport.send_data(my_client, message, {{127, 0, 0, 1}, @server_port})
+    client_socket = Socket.UDP.open!(@client_port)
 
-  #   RockemDodgeball.GameServer.broadcast_gamestate(game_server, System.system_time(:millisecond))
-  # end
+    Process.sleep(200)
 
-  # TODO make readme w/ http://asciiflow.com/
-  # test "broadcast message to clients" do
-  #   {:ok, server_pid} = RockemDodgeball.GameServer.start_link(@server_port)
-  #   my_client = Socket.UDP.open!(@client_port)
-  #   # server = Socket.UDP.open!(@server_port)
-  #   other_clients = [
-  #     Socket.UDP.open!(12346),
-  #     Socket.UDP.open!(12347),
-  #     Socket.UDP.open!(12348),
-  #     Socket.UDP.open!(12349),
-  #   ]
+    :gen_udp.send(client_socket, {127, 0, 0, 1}, @server_port, fake_client_update)
 
-  #   # TODO find way to get back socket ref instead of pid to
-  #   # test with
-  #   spawn fn -> :gen_udp.send(server_pid, {127, 0, 0, 1}, @server_port, "BROADCAST") end
-  #   my_client |> Socket.Datagram.recv! |> IO.inspect
-  # end
+    received_gamestate =
+      client_socket
+      |> Socket.Datagram.recv!()
+
+    assert received_gamestate != nil
+
+    # :gen_udp.recv(client_socket, 0) |> Poison.decode!(as: %ServerGamestateUpdate{})
+
+    # assert received_gamestate.tickTimestamp > 0
+    # # Socket.Datagram.send!(my_client, "data", to)
+
+    # # :gen_udp.send(my_client, {127, 0, 0, 1}, @server_port, "BROADCAST")
+
+    # IO.puts "AAA"
+    # client_socket |> Socket.Datagram.recv!() |> IO.inspect()
+    # IO.puts "BBB"
+
+    # # TODO find way to get back socket ref instead of pid to
+    # # test with
+    # # spawn fn -> :gen_udp.send(server_pid, {127, 0, 0, 1}, @server_port, "BROADCAST") end
+    # client_socket |> Socket.Datagram.recv!() |> IO.inspect()
+  end
 end
