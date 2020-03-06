@@ -15,7 +15,7 @@ defmodule RockemDodgeball.GameServerTest do
     assert :ok == GenServer.cast(super_pid, {:udp, {}, {{127, 0, 0, 1}, @client_port}, "abc123"})
   end
 
-  test "broadcast message to clients" do
+  test "broadcast a message to clients" do
     fake_client_update =
       %ClientGamestateUpdate{
         player: %PlayerData{
@@ -27,11 +27,11 @@ defmodule RockemDodgeball.GameServerTest do
     {:ok, server_pid} =
       RockemDodgeball.GameServer.start_link([@gs_id, @server_port, @tickrate, []])
 
-    Process.sleep(200)
+    Process.sleep(20)
 
     client_socket = Socket.UDP.open!(@client_port)
 
-    Process.sleep(200)
+    Process.sleep(20)
 
     :gen_udp.send(client_socket, {127, 0, 0, 1}, @server_port, fake_client_update)
 

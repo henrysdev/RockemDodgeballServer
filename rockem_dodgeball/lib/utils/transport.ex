@@ -3,6 +3,15 @@ defmodule Utils.Transport do
   Sends `data` to the `to` value, where `to` is a tuple of
   { host, port } like {{127, 0, 0, 1}, 27189}
   """
+
+  def serialize(body) do
+    Poison.encode!(body)
+  end
+
+  def deserialize(body, target_struct) do
+    Poison.decode!(body, as: target_struct)
+  end
+
   def send_data(server, data, {_host, _port} = to) do
     Socket.Datagram.send!(server, data, to)
   end

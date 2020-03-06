@@ -53,7 +53,7 @@ defmodule RockemDodgeball.GameServer do
       gamestate_pid: gamestate_pid
     } = state
 
-    client_update = Poison.decode!(data, as: %ClientGamestateUpdate{})
+    client_update = Transport.deserialize(data, %ClientGamestateUpdate{})
 
     state =
       state
@@ -82,7 +82,7 @@ defmodule RockemDodgeball.GameServer do
           |> Map.values(),
         tickTimestamp: tick
       }
-      |> Poison.encode!()
+      |> Transport.serialize()
 
     clients
     |> Map.values()
